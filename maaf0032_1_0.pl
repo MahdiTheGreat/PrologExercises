@@ -1,3 +1,123 @@
+
+%added facts
+
+child(pan ,hermes ).
+child(pan ,dryope ).
+
+% my queries
+
+%Is Tethys female?
+%   ?- female(tethys ).
+%   true.
+
+%query that answers the question which gods are children of Rhea and Chronus
+% ?- child(G,rhea),child(G,chronus).
+% G = hera ;
+% G = hades ;
+% G = demeter ;
+% G = poseidon ;
+% G = zeus.
+
+% query that answers the question who is the mother of Phoebe
+% ?- mother(M,phoebe).
+% M = gaia ;
+% false.
+
+% query that answers the question which gods are partners of Hermes
+% ?- partner(hermes,B).
+% B = aphrodite ;
+% B = dryope ;
+% B = aphrodite ;
+% B = dryope.
+
+% query that answers the question who are bachelors
+% ?- bachelor(B).
+% B = hades ;
+% B = hades ;
+% B = poseidon ;
+% B = poseidon ;
+% B = hephaestus ;
+% B = hephaestus ;
+% B = apollo ;
+% B = apollo ;
+% B = eros ;
+% B = eros ;
+% B = hermaphroditus ;
+% B = hermaphroditus ;
+% B = pan ;
+% B = pan ;
+% false.
+
+% query that answers the question who is a sibling of Apollo
+% ?- sibling(apollo,B).
+% B = artemis ;
+% false.
+
+% query that answers the question who is a part of Ares family
+% ?- family(X,ares). 
+% X = hephaestus ;
+% X = aphrodite ;
+% X = aphrodite ;
+% X = eros ;
+% X = zeus ;
+% X = hera.
+
+% a query, without creating a new rule, that answers the question which goddesses have more than one partner
+% ?- female(F),partner(F,B),partner(F,C),B\=C.
+% F = aphrodite,
+% B = ares,
+% C = hermes ;
+% F = aphrodite,
+% B = ares,
+% C = hermes ;
+% F = aphrodite,
+% B = hermes,
+% C = ares ;
+% F = aphrodite,
+% B = hermes,
+% C = ares ;
+% F = aphrodite,
+% B = ares,
+% C = hermes ;
+% F = aphrodite,
+% B = ares,
+% C = hermes ;
+% F = aphrodite,
+% B = hermes,
+% C = ares ;
+% F = aphrodite,
+% B = hermes,
+% C = ares ;
+% false.
+
+% my rules
+
+%the rule mother(M, C) that is true if M is the mother of C.
+mother(M,C) :- female(M),child(C,M).
+
+%the rule father(F, C) that is true if F is the mother of C.
+father(F,C) :- child(C,F),\+female(F).
+
+%the rule partner(A, B) that is true if A and B have a child together
+partner(A, B) :- child(C,A),child(C,B),A\=B.
+
+god(P):-child(P,F);father(P,C);mother(P,C).
+
+male(M):- god(M),\+female(M).
+
+%the rule bachelor(B) that is true if X is a male without children.
+bachelor(B) :- male(B),\+father(B,C).
+
+%the rule sibling(A, B) that is true if A and B are siblings (that is, they share both parents!)
+sibling(A, B) :- mother(Ma,A),mother(Mb,B),father(Fa,A),father(Fb,B),Ma==Mb,Fa==Fb,A\=B.
+
+% extending the definition
+family(X,Y) :- sibling(X,Y);partner(X, Y).
+
+% Simplification of titan definition
+titan(X) :- child(X,uranus).
+
+
 child(rhea,uranus).
 child(rhea,gaia).
 child(chronus,uranus).
@@ -67,9 +187,7 @@ female(artemis).
 female(dione).
 female(dryope).
 female(maia).
-%added facts
-child(pan ,hermes ).
-child(pan ,dryope ).
+
 
 % keep in mind that for consult we need to use the forward slash for directory
 
@@ -84,7 +202,7 @@ grandchild(C,Gp) :- child(C,P), child(P,Gp).
 %C is a son of P if C is the child of P, and C is not female.
 son(C,P) :- child(C,P), \+ female(C).
 
-%A is parther with B if they have a child together
+%A is partner with B if they have a child together
 partner(A, B) :- child(C, A), child(C, B), not(A = B) .
 
 %X and Y are in a family if X is the child of Y, or Y is the child of X.
@@ -92,27 +210,10 @@ family(X,Y) :- child(X,Y).
 family(X,Y) :- child(Y,X).
 
 
+
 % X is a titan if X is the child of Y, and Y is Uranus.
-titan(X) :- child(X,Y), Y == uranus.
-
-% my rules
-
-%the rule mother(M, C) that is true if M is the mother of C.
-mother(M,C) :- female(M),child(C,M).
-
-%the rule father(F, C) that is true if F is the mother of C.
-father(F,C) :- \+female(F),child(C,F).
-
-%the rule partner(A, B) that is true if A and B have a child together
-partner(A, B) :- child(C,A),child(C,B),A\=B.
-
-%the rule bachelor(B) that is true if X is a male without children.(Tip: the family tree is coherent, so everyone is a parent or child of someone)
-
-bachelor(B) :- \+child(C,B), \+ female(B).
-
-%the rule sibling(A, B) that is true if A and B are siblings (that is, they share both parents!)
-
-sibling(A, B) :- mother(M,A)==mother(M,B),father(F,A)==father(F,B).
+% need to use father here
+% titan(X) :- child(X,Y), Y == uranus.
 
 
 % Printouts from prompt:
@@ -126,29 +227,4 @@ sibling(A, B) :- mother(M,A)==mother(M,B),father(F,A)==father(F,B).
 %   P = zeus ;
 %   false.
 
-% my queries
-
-%Is Tethys female?
-%   ?- female(tethys ).
-%   true.
-
-%query that answers the question which gods are children of Rhea and Chronus
-% ?- child(G,rhea),child(G,chronus).
-% G = hera ;
-% G = hades ;
-% G = demeter ;
-% G = poseidon ;
-% G = zeus.
-
-% query that answers the question who is the mother of Phoebe
-% ?- mother(M,phoebe).
-% M = gaia ;
-% false.
-
-% query that answers the question which gods are partners of Hermes
-% ?- partner(hermes,B).
-% B = aphrodite ;
-% B = dryope ;
-% B = aphrodite ;
-% B = dryope.
 
