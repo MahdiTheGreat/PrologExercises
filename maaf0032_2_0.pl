@@ -1,4 +1,5 @@
 
+% List processing----------------------------------------------------------------------
 % a rule called same_member(L1, L2, E) that is true if and only if E is a member of both L1 and L2
 % we simply use the built-in function 'member' to see if E is a member of both lists, via the and operator
 same_member(L1, L2, E) :- 
@@ -18,34 +19,27 @@ get_nth_element(L1,N1,E1),
 get_nth_element(L2,N2,E2),
 N1=N2.
 
-%eq_pos([H1|T1],[H2|T2],E1,E2):- E1=H1,E2=H2.
-%eq_pos([H1|T1],[H2|T2],E1,E2):- eq_pos(T1,T2,E1,E2).
-
-% essentially we try to find the set of a list and compare it with the inputted set.
-% the cut operations are used to not have backtracking, as prolog doesn't support lazy evaluation and has weird behaviors when using or.
+%essentially we try to find the set of a list and compare it with the inputted set.
+% the cut operation is used to remove redundancy and not have every permutation 
+% of set as an answer, but if we don't have the cut operation, the program would still work.
 set(L,S):-
-    setfinder(L,TS),
-    !,
-    permutation(TS,S),
-    % the below cut was specially used so that we only have one output when we want to find the set of a list.
+    setfinder(L,TEMP),
+    permutation(TEMP,S),
     !.
-% base of the recursion, as an empty list doesn't have a set.
-setfinder([],TS).
-% we check if the head of the list is already in our set or not, and if it isn't we insert it in to the list.
-setfinder([H|T],TS):-
-    setfinder(T,TS),
-    ( \+member(H,TS) 
-    -> TS=[H|TS]
-    ;member(H,TS)).
+% base of the recursion, as the set of an empty list is an empty set.
+setfinder([],S):- S=[].
 
-% eq_pos(L1,L2,E1,E2):-
-% length(L1,Len1),
-% length(L2,Len2),
-% M is max(Len1,Len2),
-% get_nth_element(L1,N1,E1),
-% get_nth_element(L2,N2,E2),
-% N1=N2.
+% This is our helper function, which by itself is incomplete, as it's only used to find
+% a set of a list, and cannot be used to see if a given set is the set of the inputted list or not.
+% At every recursion, we check if the head of the list is already in our set or not, and if it isn't we insert it in to the set 
+% otherwise we leave the set as it is.
+setfinder([H|T],S):-
+    setfinder(T,TEMP),
+    ( \+member(H,TEMP) 
+    -> S=[H|TEMP]
+    ;S=TEMP ).
 
+% Math----------------------------------------------------------------------
 % based on the definition of a prime number, it has to be a positive integer bigger than one and also only be dividable by itself and one.
 % this is reflected below
 prime(X) :- X>1,integer(X),M is X-1,prime(X,M).
@@ -55,6 +49,7 @@ prime(X,1).
 % basically M is initially equal to X-1 and then it recursively checks if X mod M is bigger than zero, which shows that X is not divisible by M.
 prime(X,M) :- ( X mod M) > 0,M1 is M-1,prime(X,M1).
 
+% Lists and math----------------------------------------------------------------------
 % we write a function to calculate the sum of a list
 % below is the base of the recursion, that is the sum of an empty list is zero
 sum([],0).
